@@ -1,102 +1,86 @@
-import React, { Component } from 'react'; //import React Component
-import {AboutPage, ResourcesPage} from './About';
-import AdoptPage from './AdoptPet';
-import './App.css'; //import css file!
-
-import SAMPLE_DOGS from './dogs.json'; //a sample list of dogs (model)
+import React, { Component } from 'react';
+import SignUpForm from './components/signup/SignUpForm';
 
 class App extends Component {
-  constructor(props){
-    super(props);
-    this.state = {pets: []}; //initialize as empty
-  }
-
-  componentDidMount() {
-    //pretend we loaded external data
-    this.setState({pets: SAMPLE_DOGS});
-  }
-
-  render() {
-    return (
-      <div>
-        <header className="jumbotron jumbotron-fluid py-4">
-          <div className="container">
-            <h1>Adopt a Pet</h1>
-          </div>
-        </header>
-      
-        <main className="container">
-          <div className="row">
-            <div className="col-3">
-              <AboutNav />
-            </div>
-            <div className="col-9">
-              <PetList pets={this.state.pets} />
-            </div>
-          </div>
-        </main>
-
-        <footer className="container">
-          <small>Images from <a href="http://www.seattlehumane.org/adoption/dogs">Seattle Humane Society</a></small>
-        </footer>
-      </div>
-    );
-  }
-}
-
-class AboutNav extends Component {
-  render() {
-    return (
-      <nav id="aboutLinks">
-        <h2>About</h2>
-        <ul className="list-unstyled">
-          <li><a href="/">Adopt a Pet</a></li>
-          <li><a href="/about">About Us</a></li>
-          <li><a href="/resources">Resources</a></li>
-        </ul>
-      </nav>
-    );
-  }  
-}
-
-class PetList extends Component {
-  render() {
-    let pets = this.props.pets || []; //handle if not provided a prop
-    let petCards = pets.map((pet) => {
-      return <PetCard key={pet.name} pet={pet} />;
-    })
-
-    return (
-      <div>
-        <h2>Dogs for Adoption</h2>
-        <div className="card-deck">
-          {petCards}
-        </div>
-      </div>
-    );
-  }
-}
-
-class PetCard extends Component {
   constructor(props){
     super(props);
     this.state = {};
   }
 
-  handleClick = () => {
-    console.log("You clicked on", this.props.pet.name);
+  //A callback function for registering new users
+  handleSignUp = (email, password, handle, avatar) => {
+    this.setState({errorMessage:null}); //clear any old errors
+
+    /* TODO: sign up user here */
+  }
+
+  //A callback function for logging in existing users
+  handleSignIn = (email, password) => {
+    this.setState({errorMessage:null}); //clear any old errors
+
+    /* TODO: sign in user here */
+  }
+
+  //A callback function for logging out the current user
+  handleSignOut = () => {
+    this.setState({errorMessage:null}); //clear any old errors
+
+    /* TODO: sign out user here */
   }
 
   render() {
-    let pet = this.props.pet; //shortcut
-    return (
-      <div className="card clickable" onClick={this.handleClick}>
-        <img className="card-img-top" src={pet.images[0]} alt={pet.name} />
-        <div className="card-body">
-          <h3 className="card-title">{pet.name} {pet.adopted ? '(Adopted)' : ''}</h3>
-          <p className="card-text">{pet.sex} {pet.breed}</p>
+
+    let content = null; //content to render
+
+    if(!this.state.user) { //if logged out, show signup form
+      content = (
+        <div className="container">
+          <h1>Sign Up</h1>
+          <SignUpForm 
+            signUpCallback={this.handleSignUp} 
+            signInCallback={this.handleSignIn} 
+            />
         </div>
+      );
+    } 
+    else { //if logged in, show welcome message
+      content = (
+        <div>
+          <WelcomeHeader user={this.state.user}>
+            {/* log out button is child element */}
+            {this.state.user &&
+              <button className="btn btn-warning" onClick={this.handleSignOut}>
+                Log Out {this.state.user.displayName}
+              </button>
+            }
+          </WelcomeHeader>
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        {this.state.errorMessage &&
+          <p className="alert alert-danger">{this.state.errorMessage}</p>
+        }
+        {content}
       </div>
+    );
+  }
+}
+
+//A component to display a welcome message to a `user` prop (for readability)
+class WelcomeHeader extends Component {
+  render() {
+    return (
+      <header className="container">
+        <h1>
+          Welcome {this.props.user.displayName}!
+          {' '}
+          <img className="avatar" src={this.props.user.photoURL} alt={this.props.user.displayName} />
+        </h1>
+        {this.props.children} {/* for button */}
+      </header>
     );
   }
 }
